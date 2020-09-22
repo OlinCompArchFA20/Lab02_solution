@@ -4,14 +4,14 @@
 module test_accumulator;
 
   // Regs and wires for input/output
-  reg  [W-1:0] A;
-  wire [W-1:0] S;
-  wire         Co;
-  reg          clk;
-  reg          _rst;
+  reg  signed [W-1:0] A;
+  wire signed [W-1:0] S;
+  wire Co;
+  reg  clk;
+  reg  _rst;
 
   // Define the width of the Carry Save Adder
-  parameter W = 4;
+  parameter W = 4+1;
   // Delay should scale as a function of W
   // to account for worst-case carry length
   parameter CLK = 100;
@@ -34,16 +34,29 @@ module test_accumulator;
     // Wait for reset nodes to settle
     #40 _rst = 1'b1; 
 
-    $display("Accumulating 1...");
-    for (int i = 0; i < 2**W; i = i+1) begin
+    $display("Accumulating %d...",A);
+    for (int i = 0; i < 2**(W-1)-1; i = i+1) begin
+      #(2*CLK) $display("%d",S);
+    end
+
+    A = -1;
+    $display("Accumulating %d...",A);
+    for (int i = 0; i < 2**(W-1)-1; i = i+1) begin
       #(2*CLK) $display("%d",S);
     end
 
     A = 2;
-    $display("Accumulating 2...");
-    for (int i = 0; i < 2**(W-1); i = i+1) begin
+    $display("Accumulating %d...",A);
+    for (int i = 0; i < 2**(W-2)-1; i = i+1) begin
       #(2*CLK) $display("%d",S);
     end
+
+    A = -1;
+    $display("Accumulating %d...",A);
+    for (int i = 0; i < 2**(W-1)-2; i = i+1) begin
+      #(2*CLK) $display("%d",S);
+    end
+
     $finish;
     // Since we're only printing failures...
   end
